@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>날씨 선호도 공감 게임</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #0369a1;
+            margin-bottom: 8px;
+            font-size: 24px;
+        }
+
+        p.subtitle {
+            color: #64748b;
+            font-size: 14px;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 15px;
+            outline: none;
+            text-align: center;
+        }
+
+        .input-group input:focus {
+            border-color: #0284c7;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #e2e8f0;
+            border-radius: 4px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: #0284c7;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-card {
+            background-color: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 25px 20px;
+            margin-bottom: 20px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            word-break: keep-all;
+            line-height: 1.4;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background-color: white;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 15px 20px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #334155;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .option-btn:hover {
+            border-color: #0284c7;
+            background-color: #f0f9ff;
+            color: #0369a1;
+        }
+
+        .btn-main {
+            width: 100%;
+            background-color: #0284c7;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-main:hover {
+            background-color: #0369a1;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .result-box {
+            padding: 10px 0;
+        }
+
+        .score-circle {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 15px auto;
+            box-shadow: 0 8px 16px rgba(2, 132, 199, 0.25);
+        }
+
+        .score-num {
+            font-size: 32px;
+            font-weight: 800;
+        }
+
+        .score-label {
+            font-size: 11px;
+            opacity: 0.9;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 14px;
+            background-color: #e0f2fe;
+            color: #0369a1;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .result-title {
+            font-size: 21px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 12px;
+        }
+
+        .result-desc {
+            font-size: 14px;
+            color: #475569;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            word-break: keep-all;
+            background-color: #f8fafc;
+            padding: 15px;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 시작 화면 -->
+    <div id="start-screen">
+        <h1>☀️ 날씨 선호도 공감 게임 🌧️</h1>
+        <p class="subtitle">5가지 선택을 마치면 정밀한 날씨 유형이 분석됩니다!</p>
+        <div class="input-group">
+            <input type="text" id="user-name" placeholder="이름을 입력하세요" maxlength="10">
+        </div>
+        <button class="btn-main" onclick="startGame()">게임 시작하기!</button>
+    </div>
+
+    <!-- 질문 화면 -->
+    <div id="quiz-screen" class="hidden">
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div class="question-card">
+            <div class="question-text" id="question-text">질문이 여기에 표시됩니다.</div>
+        </div>
+        <div class="options-grid" id="options-container"></div>
+    </div>
+
+    <!-- 결과 화면 -->
+    <div id="result-screen" class="hidden">
+        <div class="result-box">
+            <div id="user-badge" class="badge">모험가님</div>
+            <div class="score-circle">
+                <span class="score-num" id="final-score">0</span>
+                <span class="score-label">대중 공감도</span>
+            </div>
+            <div class="result-title" id="result-title">분석 중...</div>
+            <div class="result-desc" id="result-desc">결과 분석 내용이 여기에 표시됩니다.</div>
+            <button class="btn-main" onclick="restartGame()">다시 테스트하기</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            q: "비 오는 날 당신이 더 좋아하는 행동은?",
+            options: [
+                { text: "창밖 보며 따뜻한 음료 마시기 ☕", ratio: 65, tag: "rain_emotion" },
+                { text: "빗소리 들으며 신나게 전 부쳐먹기 🥞", ratio: 35, tag: "rain_food" }
+            ]
+        },
+        {
+            q: "주말 야외 데이트, 더 선호하는 날씨는?",
+            options: [
+                { text: "선선하고 구름 많은 날 ☁️", ratio: 58, tag: "cloud" },
+                { text: "구름 한 점 없이 화창하고 쨍한 날 ☀️", ratio: 42, tag: "sun" }
+            ]
+        },
+        {
+            q: "눈 내리는 날 아침, 가장 먼저 드는 생각은?",
+            options: [
+                { text: "우와 예쁘다! 눈사람 만들고 싶다 ☃️", ratio: 30, tag: "snow_child" },
+                { text: "아... 출근/등교길 차 막히겠네 🚗", ratio: 70, tag: "realist" }
+            ]
+        },
+        {
+            q: "선호하는 계절의 날씨 특징은?",
+            options: [
+                { text: "시원하고 가벼운 옷차림의 가을 🍁", ratio: 72, tag: "cool" },
+                { text: "포근하고 생동감 있는 봄 🌸", ratio: 28, tag: "warm" }
+            ]
+        },
+        {
+            q: "여름철 소나기가 그친 뒤 더 기대되는 것은?",
+            options: [
+                { text: "하늘에 뜨는 무지개 찾기 🌈", ratio: 45, tag: "romantic" },
+                { text: "더위가 꺾인 시원한 바람 느껴보기 🍃", ratio: 55, tag: "practical" }
+            ]
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let totalScore = 0;
+    let userName = "";
+    let selectedTags = [];
+
+    function startGame() {
+        const nameInput = document.getElementById('user-name').value.trim();
+        userName = nameInput ? nameInput : "익명의 여행자";
+        
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.remove('hidden');
+        currentQuestionIndex = 0;
+        totalScore = 0;
+        selectedTags = [];
+        showQuestion();
+    }
+
+    function showQuestion() {
+        const qData = questions[currentQuestionIndex];
+        document.getElementById('question-text').innerText = `Q${currentQuestionIndex + 1}. ${qData.q}`;
+        
+        const progressPercent = (currentQuestionIndex / questions.length) * 100;
+        document.getElementById('progress').style.width = `${progressPercent}%`;
+
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+
+        qData.options.forEach((opt) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<span>${opt.text}</span>`;
+            btn.onclick = () => selectOption(opt.ratio, opt.tag);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function selectOption(ratio, tag) {
+        totalScore += ratio;
+        selectedTags.push(tag);
+        currentQuestionIndex++;
+
+        if (currentQuestionIndex < questions.length) {
+            showQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+
+        const avgScore = Math.round(totalScore / questions.length);
+        document.getElementById('final-score').innerText = `${avgScore}%`;
+        document.getElementById('user-badge').innerText = `${userName} 님의 날씨 MBTI`;
+
+        let result = getDetailedType(avgScore, selectedTags);
+
+        document.getElementById('result-title').innerText = result.title;
+        document.getElementById('result-desc').innerText = result.desc;
+    }
+
+    // 8가지 정밀 유형 진단 알고리즘
+    function getDetailedType(score, tags) {
+        const has = (t) => tags.includes(t);
+
+        // 1. 극강의 대중 공감형 (70점 이상)
+        if (score >= 68) {
+            if (has('realist')) {
+                return {
+                    title: "🏛️ 대한민국 표준! '현실주의 황금 밸런서'",
+                    desc: "대다수 한국인이 가장 좋아하는 가을 바람과 현실적인 감각을 모두 갖추셨네요. 출근길 교통체증을 걱정하면서도 커피 한 잔의 여유를 아는 가장 이상적인 대중 취향입니다!"
+                };
+            }
+            return {
+                title: "🍁 대중 감성 100%! '가을 낭만주의자'",
+                desc: "남들이 좋아하는 호불호 없는 감성을 완벽히 공유하고 계시네요! 선선한 날씨와 따뜻한 음료를 즐기는 당신은 대중과의 공감 지수가 가장 높은 인싸 유형입니다."
+            };
+        } 
+        // 2. 중간 지대 감성형 (50점~67점)
+        else if (score >= 50) {
+            if (has('snow_child') && has('romantic')) {
+                return {
+                    title: "🌈 동심을 간직한 '동화 속 낭만파'",
+                    desc: "눈사람과 무지개처럼 일상의 소소하고 아름다운 풍경을 놓치지 않는군요! 대중적인 기준 속에서도 나만의 유쾌하고 순수한 감성을 간직하고 계십니다."
+                };
+            } else if (has('rain_food')) {
+                return {
+                    title: "🥞 빗소리 미식가 '실속형 감성러'",
+                    desc: "비 오는 날 분위기만 잡기보단 맛있는 전을 떠올리는 실속파! 대중적인 취향을 따라가면서도 확실한 자신만의 즐거움을 찾을 줄 아는 타입입니다."
+                };
+            }
+            return {
+                title: "⚖️ 호불호 제로! '카멜레온 감성러'",
+                desc: "특별히 기복을 타지 않고 어떤 날씨든 그 나름의 매력을 찾아내는 긍정 왕! 남들의 취향도 잘 맞춰주어 어떤 사람과도 잘 어울리는 스타일입니다."
+            };
+        } 
+        // 3. 나만의 확고한 마이너/개성형 (50점 미만)
+        else {
+            if (has('sun') && has('warm')) {
+                return {
+                    title: "☀️ 긍정 에너자이저 '봄날의 햇살파'",
+                    desc: "남들이 선선한 가을이나 구름을 찾을 때, 쨍하고 화창한 봄날의 에너지를 사랑하는 타입! 밝고 명랑하며 자신만의 독보적인 에너지를 뿜어내는 유형입니다."
+                };
+            } else if (has('snow_child')) {
+                return {
+                    title: "☃️ 낭만 직진! '겨울왕국 마니아'",
+                    desc: "현실적인 교통 체증 따위는 신경 쓰지 않는다! 눈이 오면 일단 설레고 보는 당신은 확고한 자신만의 예술가적 감수성을 가진 마이너 취향의 소유자입니다."
+                };
+            }
+            return {
+                title: "🔮 희소성 1% '독보적 감성 아티스트'",
+                desc: "남들과 똑같은 건 거부한다! 대중의 선택과는 거리가 멀지만, 그만큼 희귀하고 독창적인 자신만의 날씨 철학을 가진 개성파 유형입니다."
+            };
+        }
+    }
+
+    function restartGame() {
+        document.getElementById('result-screen').classList.add('hidden');
+        document.getElementById('start-screen').classList.remove('hidden');
+    }
+</script>
+
+</body>
+</html>
